@@ -1,29 +1,24 @@
 import { useEffect, useState } from "react";
-import {
-  StyleSheet,
-  FlatList,
-  RefreshControl,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+import { StyleSheet, FlatList, RefreshControl } from "react-native";
 import { useRouter } from "expo-router";
 import { Text, View } from "@/components/Themed";
 import { useAuth } from "../../lib/AuthContext";
 import apiClient from "../../lib/api-client";
 
-interface CollegeRequest {
+interface College {
   id: string;
   name: string;
   location: string;
   emailDomain: string;
+  isApproved: boolean;
   requestedBy: string;
   createdAt: string;
 }
 
-export default function PendingRequestsScreen() {
+export default function HistoryScreen() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
-  const [requests, setRequests] = useState<CollegeRequest[]>([]);
+  const [colleges, setColleges] = useState<College[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -31,68 +26,25 @@ export default function PendingRequestsScreen() {
     if (!authLoading && !user) {
       router.replace("/login");
     } else if (user) {
-      fetchRequests();
+      fetchColleges();
     }
   }, [user, authLoading]);
 
-  const fetchRequests = async () => {
+  const fetchColleges = async () => {
     try {
-      const response = await apiClient.get("/api/colleges/pending");
-      setRequests(response.data);
+      const response = await apiClient.get("/api/colleges/approved");
+      setColleges(response.data);
     } catch (error) {
-      console.error("Failed to fetch requests", error);
+      console.error("Failed to fetch colleges", error);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
 
-  const handleApprove = async (id: string, name: string) => {
-    Alert.alert("Approve College", `Approve ${name}?`, [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Approve",
-        onPress: async () => {
-          try {
-            await apiClient.patch(`/api/colleges/${id}/approve`);
-            Alert.alert("Success", "College approved!");
-            fetchRequests();
-          } catch (error: any) {
-            Alert.alert(
-              "Error",
-              error.response?.data?.message || "Failed to approve"
-            );
-          }
-        },
-      },
-    ]);
-  };
-
-  const handleReject = async (id: string, name: string) => {
-    Alert.alert("Reject College", `Reject ${name}? This cannot be undone.`, [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Reject",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await apiClient.delete(`/api/colleges/${id}/reject`);
-            Alert.alert("Success", "College request rejected");
-            fetchRequests();
-          } catch (error: any) {
-            Alert.alert(
-              "Error",
-              error.response?.data?.message || "Failed to reject"
-            );
-          }
-        },
-      },
-    ]);
-  };
-
   const onRefresh = () => {
     setRefreshing(true);
-    fetchRequests();
+    fetchColleges();
   };
 
   if (authLoading || loading) {
@@ -109,13 +61,13 @@ export default function PendingRequestsScreen() {
 
   return (
     <View style={styles.container}>
-      {requests.length === 0 ? (
+      {colleges.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No pending requests</Text>
+          <Text style={styles.emptyText}>No approved colleges yet</Text>
         </View>
       ) : (
         <FlatList
-          data={requests}
+          data={colleges}
           keyExtractor={(item) => item.id}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -132,28 +84,16 @@ export default function PendingRequestsScreen() {
                 <Text style={styles.value}>@{item.emailDomain}</Text>
 
                 <Text style={styles.label}>Requested By:</Text>
-                <Text style={styles.value}>{item.requestedBy}</Text>
+                <Text style={styles.value}>{item.requestedBy || "N/A"}</Text>
 
-                <Text style={styles.label}>Date:</Text>
+                <Text style={styles.label}>Approved On:</Text>
                 <Text style={styles.value}>
                   {new Date(item.createdAt).toLocaleDateString()}
                 </Text>
               </View>
 
-              <View style={styles.actions}>
-                <TouchableOpacity
-                  style={[styles.button, styles.approveButton]}
-                  onPress={() => handleApprove(item.id, item.name)}
-                >
-                  <Text style={styles.buttonText}>Approve</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.button, styles.rejectButton]}
-                  onPress={() => handleReject(item.id, item.name)}
-                >
-                  <Text style={styles.buttonText}>Reject</Text>
-                </TouchableOpacity>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>✓ Approved</Text>
               </View>
             </View>
           )}
@@ -208,7 +148,7 @@ const styles = StyleSheet.create({
     color: "#6B8F60",
   },
   cardBody: {
-    marginBottom: 16,
+    marginBottom: 12,
   },
   label: {
     fontSize: 12,
@@ -220,25 +160,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#1A1A1A",
   },
-  actions: {
-    flexDirection: "row",
-    gap: 12,
+  badge: {
+    backgroundColor: "#D1FAE5",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    alignSelf: "flex-start",
   },
-  button: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  approveButton: {
-    backgroundColor: "#335441",
-  },
-  rejectButton: {
-    backgroundColor: "#DC2626",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
+  badgeText: {
+    color: "#065F46",
+    fontSize: 14,
     fontWeight: "600",
   },
 });

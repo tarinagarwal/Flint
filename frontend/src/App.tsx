@@ -1,26 +1,39 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "./lib/ThemeContext";
 import ThemeToggle from "./components/ui/ThemeToggle";
-
-function AppContent() {
-  return (
-    <div className="min-h-screen bg-white dark:bg-dark-bg text-[#1A1A1A] dark:text-dark-text transition-colors duration-300">
-      <main className="p-8">
-        <h2 className="text-primary dark:text-primary-500 text-3xl font-semibold mb-2">
-          Welcome to Flint
-        </h2>
-        <p className="text-[#4A4A4A] dark:text-dark-text-secondary">
-          Dating app for college students
-        </p>
-      </main>
-      <ThemeToggle />
-    </div>
-  );
-}
+import LandingPage from "./features/landing/LandingPage";
+import SignupPage from "./features/auth/SignupPage";
+import LoginPage from "./features/auth/LoginPage";
+import RequestCollegePage from "./features/college/RequestCollegePage";
+import DashboardPage from "./features/dashboard/DashboardPage";
+import { AuthProvider } from "./lib/AuthContext";
+import ProtectedRoute from "./components/layout/ProtectedRoute";
 
 function App() {
   return (
     <ThemeProvider>
-      <AppContent />
+      <AuthProvider>
+        <BrowserRouter>
+          <div className="min-h-screen bg-white dark:bg-dark-bg text-[#1A1A1A] dark:text-dark-text transition-colors duration-300">
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/request-college" element={<RequestCollegePage />} />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <DashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+            <ThemeToggle />
+          </div>
+        </BrowserRouter>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
