@@ -1,0 +1,43 @@
+export const lightTheme = {
+  primary: "#335441",
+  accent: "#46704A",
+  muted: "#A9B782",
+  primary50: "#F9F6EE",
+  primary100: "#EFE7D4",
+  primary200: "#E4D7B4",
+  primary300: "#CCBF9D",
+  primary400: "#DEAE48",
+  primary500: "#A9B782",
+  primary600: "#6B8F60",
+  primary700: "#46704A",
+  primary800: "#3C6040",
+  primary900: "#335441",
+  background: "#FFFFFF",
+  surface: "#F9F6EE",
+  text: "#1A1A1A",
+  textSecondary: "#4A4A4A",
+  border: "#E4D7B4",
+};
+
+export const darkTheme = {
+  primary: "#A9B782",
+  accent: "#6B8F60",
+  muted: "#46704A",
+  primary50: "#1A1A1A",
+  primary100: "#242424",
+  primary200: "#2E2E2E",
+  primary300: "#383838",
+  primary400: "#DEAE48",
+  primary500: "#A9B782",
+  primary600: "#6B8F60",
+  primary700: "#46704A",
+  primary800: "#3C6040",
+  primary900: "#335441",
+  background: "#0A0A0A",
+  surface: "#1A1A1A",
+  text: "#F9F6EE",
+  textSecondary: "#CCBF9D",
+  border: "#2E2E2E",
+};
+
+export type Theme = typeof lightTheme;
