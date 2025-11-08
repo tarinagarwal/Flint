@@ -5,13 +5,10 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { lightTheme, darkTheme } from "./theme";
-import type { Theme } from "./theme";
 
 type ThemeMode = "light" | "dark";
 
 interface ThemeContextType {
-  theme: Theme;
   mode: ThemeMode;
   toggleTheme: () => void;
 }
@@ -24,20 +21,21 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     return (saved as ThemeMode) || "light";
   });
 
-  const theme = mode === "light" ? lightTheme : darkTheme;
-
   useEffect(() => {
     localStorage.setItem("theme", mode);
-    document.documentElement.style.setProperty("--bg", theme.background);
-    document.documentElement.style.setProperty("--text", theme.text);
-  }, [mode, theme]);
+    if (mode === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [mode]);
 
   const toggleTheme = () => {
     setMode((prev) => (prev === "light" ? "dark" : "light"));
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, mode, toggleTheme }}>
+    <ThemeContext.Provider value={{ mode, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
