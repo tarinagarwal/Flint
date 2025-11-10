@@ -24,7 +24,7 @@ export default function Navbar() {
 
   return (
     <nav className="bg-white/80 dark:bg-dark-surface/80 backdrop-blur-lg border-b border-primary-200 dark:border-dark-border sticky top-0 z-50 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
@@ -43,9 +43,9 @@ export default function Navbar() {
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-primary-50 dark:hover:bg-dark-border transition-colors"
+                  className="flex items-center gap-3 px-4 py-2  rounded-xl border-2 border-dark-border hover:bg-primary-50 dark:hover:bg-dark-border transition-colors"
                 >
-                  <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary dark:border-primary-500 shadow-md">
+                  <div className="w-10 h-10 rounded-full overflow-hidden shadow-md">
                     {user.photos && user.photos.length > 0 ? (
                       <img
                         src={user.photos[0]}
@@ -62,9 +62,7 @@ export default function Navbar() {
                     <p className="text-sm font-semibold text-[#1A1A1A] dark:text-dark-text">
                       {user.name}
                     </p>
-                    <p className="text-xs text-[#4A4A4A] dark:text-dark-text-secondary">
-                      @{user.username}
-                    </p>
+                    
                   </div>
                   <ChevronDown
                     className={`w-4 h-4 text-[#4A4A4A] dark:text-dark-text-secondary transition-transform ${
@@ -78,7 +76,7 @@ export default function Navbar() {
                   <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-dark-surface border border-primary-200 dark:border-dark-border rounded-xl shadow-2xl overflow-hidden">
                     <div className="p-3 border-b border-primary-200 dark:border-dark-border bg-primary-50 dark:bg-dark-bg">
                       <p className="text-sm font-semibold text-[#1A1A1A] dark:text-dark-text">
-                        {user.name}
+                        {user.username}
                       </p>
                       <p className="text-xs text-[#4A4A4A] dark:text-dark-text-secondary">
                         {user.email}

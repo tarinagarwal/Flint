@@ -7,6 +7,7 @@ import LoginPage from "./features/auth/LoginPage";
 import RequestCollegePage from "./features/college/RequestCollegePage";
 import DashboardPage from "./features/dashboard/DashboardPage";
 import EditProfilePage from "./features/dashboard/EditProfilePage";
+import ProfileCardPage from "./features/profile/ProfileCardPage";
 import ProfileSetupPage from "./features/onboarding/ProfileSetupPage";
 import PreferencesPage from "./features/onboarding/PreferencesPage";
 import { AuthProvider } from "./lib/AuthContext";
@@ -75,6 +76,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <EditProfilePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile/:username"
+                element={
+                  <ProtectedRoute>
+                    <ProfileCardPage />
                   </ProtectedRoute>
                 }
               />

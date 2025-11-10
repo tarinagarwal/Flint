@@ -1,18 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext";
-import {
-  Edit,
-  LogOut,
-  Heart,
-  Users,
-  Sparkles,
-  Mail,
-  MapPin,
-} from "lucide-react";
+import Navbar from "../../components/layout/Navbar";
+import { Heart, Users, Sparkles, Mail, MapPin, Edit } from "lucide-react";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   if (!user) return null;
 
@@ -27,28 +20,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100 dark:from-dark-bg dark:via-dark-surface dark:to-dark-bg">
-      {/* Header */}
-      <div className="bg-white/80 dark:bg-dark-surface/80 backdrop-blur-lg border-b border-primary-200 dark:border-dark-border sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-700 dark:from-primary-500 dark:to-primary-700 flex items-center justify-center text-white text-xl font-bold shadow-lg">
-                🔥
-              </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-700 dark:from-primary-500 dark:to-primary-700 bg-clip-text text-transparent">
-                Flint
-              </h1>
-            </div>
-            <button
-              onClick={logout}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout
-            </button>
-          </div>
-        </div>
-      </div>
+      <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Dashboard Banner */}
