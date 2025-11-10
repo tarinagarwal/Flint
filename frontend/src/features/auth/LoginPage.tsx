@@ -77,7 +77,7 @@ export default function LoginPage() {
       });
 
       login(response.data.token, response.data.user);
-      
+
       // Redirect based on onboarding status
       if (response.data.user.isOnboarded) {
         navigate("/dashboard");

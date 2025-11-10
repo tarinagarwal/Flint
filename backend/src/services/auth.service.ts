@@ -162,14 +162,24 @@ export const authService = {
     userId: string,
     data: {
       bio: string;
+      gender: string;
       interests: string[];
       photos: string[];
     }
   ) {
-    const { bio, interests, photos } = data;
+    const { bio, gender, interests, photos } = data;
 
     if (!bio || bio.trim().length === 0) {
       throw new Error("Bio is required");
+    }
+
+    if (
+      !gender ||
+      !["male", "female", "transgender"].includes(gender.toLowerCase())
+    ) {
+      throw new Error(
+        "Valid gender is required (male, female, or transgender)"
+      );
     }
 
     if (!interests || interests.length === 0) {
@@ -184,6 +194,7 @@ export const authService = {
       where: { id: userId },
       data: {
         bio: bio.trim(),
+        gender: gender.toLowerCase(),
         interests,
         photos,
       },
@@ -204,6 +215,7 @@ export const authService = {
         username: user.username,
         email: user.email,
         bio: user.bio,
+        gender: user.gender,
         interests: user.interests,
         photos: user.photos,
         isAdmin: Boolean(user.isAdmin),
@@ -274,6 +286,7 @@ export const authService = {
         username: user.username,
         email: user.email,
         bio: user.bio,
+        gender: user.gender,
         interests: user.interests,
         photos: user.photos,
         isAdmin: Boolean(user.isAdmin),
@@ -299,6 +312,7 @@ export const authService = {
       name: string;
       username: string;
       bio: string;
+      gender: string;
       interests: string[];
       photos: string[];
       preferences: {
@@ -309,7 +323,8 @@ export const authService = {
       };
     }
   ) {
-    const { name, username, bio, interests, photos, preferences } = data;
+    const { name, username, bio, gender, interests, photos, preferences } =
+      data;
 
     // Validate inputs
     if (!name || name.trim().length === 0) {
@@ -318,6 +333,15 @@ export const authService = {
 
     if (!username || username.trim().length === 0) {
       throw new Error("Username is required");
+    }
+
+    if (
+      !gender ||
+      !["male", "female", "transgender"].includes(gender.toLowerCase())
+    ) {
+      throw new Error(
+        "Valid gender is required (male, female, or transgender)"
+      );
     }
 
     // Check if username is taken by another user
@@ -371,6 +395,7 @@ export const authService = {
         name: name.trim(),
         username: username.toLowerCase().trim(),
         bio: bio.trim(),
+        gender: gender.toLowerCase(),
         interests,
         photos,
         preferredAgeMin: preferences.ageRange.min,
@@ -395,6 +420,7 @@ export const authService = {
         username: user.username,
         email: user.email,
         bio: user.bio,
+        gender: user.gender,
         interests: user.interests,
         photos: user.photos,
         isAdmin: Boolean(user.isAdmin),
@@ -409,6 +435,71 @@ export const authService = {
           distance: user.preferredDistance,
           genderPreference: preferences.genderPreference,
         },
+      },
+    };
+  },
+
+  async getMe(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        college: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    console.log("=== RAW USER FROM DATABASE ===");
+    console.log("User ID:", user.id);
+    console.log("Bio:", user.bio);
+    console.log("Interests:", user.interests);
+    console.log("Photos:", user.photos);
+    console.log("PreferredAgeMin:", user.preferredAgeMin);
+    console.log("PreferredAgeMax:", user.preferredAgeMax);
+    console.log("PreferredDistance:", user.preferredDistance);
+    console.log("PreferredGender:", user.preferredGender);
+    console.log("IsOnboarded:", user.isOnboarded);
+    console.log("==============================");
+
+    const genderPreferenceMap: { [key: string]: string } = {
+      all: "everyone",
+      male: "male",
+      female: "female",
+    };
+
+    return {
+      user: {
+        id: user.id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        bio: user.bio,
+        gender: user.gender,
+        interests: user.interests,
+        photos: user.photos,
+        isAdmin: Boolean(user.isAdmin),
+        isOnboarded: Boolean(user.isOnboarded),
+        college: user.college,
+        preferences: user.isOnboarded
+          ? {
+              lookingFor: "friendship",
+              ageRange: {
+                min: user.preferredAgeMin || 18,
+                max: user.preferredAgeMax || 30,
+              },
+              distance: user.preferredDistance || 50,
+              genderPreference:
+                genderPreferenceMap[user.preferredGender || "all"] ||
+                "everyone",
+            }
+          : null,
       },
     };
   },

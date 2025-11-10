@@ -9,6 +9,7 @@ interface User {
   username: string;
   email: string;
   bio?: string;
+  gender?: string;
   interests?: string[];
   photos?: string[];
   isAdmin: boolean;

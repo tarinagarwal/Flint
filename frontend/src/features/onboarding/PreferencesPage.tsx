@@ -33,16 +33,16 @@ export default function PreferencesPage() {
     setLoading(true);
 
     try {
-      await apiClient.patch("/api/auth/preferences", {
+      const response = await apiClient.patch("/api/auth/preferences", {
         preferredAgeMin: formData.preferredAge.min,
         preferredAgeMax: formData.preferredAge.max,
         preferredDistance: formData.preferredDistance,
         preferredGender: formData.preferredGender,
       });
 
-      // Update user in context
-      if (token && user) {
-        login(token, { ...user, isOnboarded: true });
+      // Update user in context with the full response data
+      if (token) {
+        login(token, response.data.user);
       }
 
       navigate("/dashboard");

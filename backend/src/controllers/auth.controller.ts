@@ -43,14 +43,15 @@ export const authController = {
   async updateProfileSetup(req: Request, res: Response) {
     try {
       const userId = (req as any).userId;
-      const { bio, interests, photos } = req.body;
+      const { bio, gender, interests, photos } = req.body;
 
-      if (!bio || !interests || !photos) {
+      if (!bio || !gender || !interests || !photos) {
         return res.status(400).json({ message: "All fields are required" });
       }
 
       const result = await authService.updateProfileSetup(userId, {
         bio,
+        gender,
         interests,
         photos,
       });
@@ -96,9 +97,18 @@ export const authController = {
   async updateProfile(req: Request, res: Response) {
     try {
       const userId = (req as any).userId;
-      const { name, username, bio, interests, photos, preferences } = req.body;
+      const { name, username, bio, gender, interests, photos, preferences } =
+        req.body;
 
-      if (!name || !username || !bio || !interests || !photos || !preferences) {
+      if (
+        !name ||
+        !username ||
+        !bio ||
+        !gender ||
+        !interests ||
+        !photos ||
+        !preferences
+      ) {
         return res.status(400).json({ message: "All fields are required" });
       }
 
@@ -106,11 +116,22 @@ export const authController = {
         name,
         username,
         bio,
+        gender,
         interests,
         photos,
         preferences,
       });
 
+      res.status(200).json(result);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+
+  async getMe(req: Request, res: Response) {
+    try {
+      const userId = (req as any).userId;
+      const result = await authService.getMe(userId);
       res.status(200).json(result);
     } catch (error: any) {
       res.status(400).json({ message: error.message });

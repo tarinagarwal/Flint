@@ -18,6 +18,7 @@ export default function EditProfilePage() {
     name: user?.name || "",
     username: user?.username || "",
     bio: user?.bio || "",
+    gender: user?.gender || "male",
     interests:
       user?.interests && user.interests.length > 0 ? user.interests : [""],
     photos: user?.photos || [],
@@ -87,6 +88,11 @@ export default function EditProfilePage() {
       return;
     }
 
+    if (!formData.gender) {
+      setError("Gender is required");
+      return;
+    }
+
     if (validInterests.length === 0) {
       setError("At least one interest is required");
       return;
@@ -104,6 +110,7 @@ export default function EditProfilePage() {
         name: formData.name,
         username: formData.username,
         bio: formData.bio,
+        gender: formData.gender,
         interests: validInterests,
         photos: formData.photos,
         preferences: formData.preferences,
@@ -212,6 +219,50 @@ export default function EditProfilePage() {
               disabled
               className="w-full px-4 py-3 bg-primary-50 dark:bg-dark-bg border border-primary-200 dark:border-dark-border rounded-lg text-[#4A4A4A] dark:text-dark-text-secondary cursor-not-allowed"
             />
+          </div>
+
+          {/* Gender */}
+          <div>
+            <label className="block text-sm font-medium text-[#4A4A4A] dark:text-dark-text-secondary mb-3">
+              Gender <span className="text-red-500">*</span>
+            </label>
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, gender: "male" })}
+                className={`py-3 px-4 rounded-lg border-2 transition-all ${
+                  formData.gender === "male"
+                    ? "border-primary dark:border-primary-500 bg-primary/10 dark:bg-primary-500/20 text-primary dark:text-primary-500 font-semibold"
+                    : "border-primary-200 dark:border-dark-border text-[#4A4A4A] dark:text-dark-text-secondary hover:border-primary dark:hover:border-primary-500"
+                }`}
+              >
+                Male
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, gender: "female" })}
+                className={`py-3 px-4 rounded-lg border-2 transition-all ${
+                  formData.gender === "female"
+                    ? "border-primary dark:border-primary-500 bg-primary/10 dark:bg-primary-500/20 text-primary dark:text-primary-500 font-semibold"
+                    : "border-primary-200 dark:border-dark-border text-[#4A4A4A] dark:text-dark-text-secondary hover:border-primary dark:hover:border-primary-500"
+                }`}
+              >
+                Female
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setFormData({ ...formData, gender: "transgender" })
+                }
+                className={`py-3 px-4 rounded-lg border-2 transition-all ${
+                  formData.gender === "transgender"
+                    ? "border-primary dark:border-primary-500 bg-primary/10 dark:bg-primary-500/20 text-primary dark:text-primary-500 font-semibold"
+                    : "border-primary-200 dark:border-dark-border text-[#4A4A4A] dark:text-dark-text-secondary hover:border-primary dark:hover:border-primary-500"
+                }`}
+              >
+                Transgender
+              </button>
+            </div>
           </div>
 
           {/* Bio */}

@@ -16,6 +16,15 @@ export default function DashboardPage() {
 
   if (!user) return null;
 
+  // Check if profile is incomplete
+  const isProfileIncomplete =
+    !user.bio ||
+    !user.gender ||
+    !user.interests ||
+    user.interests.length === 0 ||
+    !user.photos ||
+    user.photos.length === 0;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100 dark:from-dark-bg dark:via-dark-surface dark:to-dark-bg">
       {/* Header */}
@@ -42,6 +51,33 @@ export default function DashboardPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Incomplete Profile Warning */}
+        {isProfileIncomplete && (
+          <div className="mb-8 p-6 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-2 border-amber-300 dark:border-amber-700 rounded-2xl">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
+                <span className="text-2xl">⚠️</span>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-amber-900 dark:text-amber-200 mb-2">
+                  Complete Your Profile
+                </h3>
+                <p className="text-amber-800 dark:text-amber-300 mb-4">
+                  Your profile is incomplete. Please add your gender, bio,
+                  interests, and profile photo to get the best experience on
+                  Flint.
+                </p>
+                <button
+                  onClick={() => navigate("/edit-profile")}
+                  className="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-semibold transition-colors"
+                >
+                  Complete Profile Now
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white dark:bg-dark-surface rounded-2xl p-6 shadow-lg border border-primary-200 dark:border-dark-border hover:shadow-xl transition-shadow">
@@ -145,8 +181,8 @@ export default function DashboardPage() {
 
             {/* Profile Details */}
             <div className="mt-8 space-y-6">
-              {/* College & Email */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* College, Email & Gender */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="flex items-center gap-3 p-4 bg-primary-50 dark:bg-dark-bg rounded-xl">
                   <div className="w-10 h-10 rounded-full bg-primary dark:bg-primary-500 flex items-center justify-center">
                     <MapPin className="w-5 h-5 text-white" />
@@ -174,6 +210,22 @@ export default function DashboardPage() {
                     </p>
                   </div>
                 </div>
+
+                {user.gender && (
+                  <div className="flex items-center gap-3 p-4 bg-primary-50 dark:bg-dark-bg rounded-xl">
+                    <div className="w-10 h-10 rounded-full bg-primary dark:bg-primary-500 flex items-center justify-center">
+                      <Users className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-[#4A4A4A] dark:text-dark-text-secondary">
+                        Gender
+                      </p>
+                      <p className="text-sm font-semibold text-[#1A1A1A] dark:text-dark-text capitalize">
+                        {user.gender}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Bio */}

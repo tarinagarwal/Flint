@@ -11,6 +11,7 @@ export default function ProfileSetupPage() {
 
   const [formData, setFormData] = useState({
     bio: "",
+    gender: "",
     interests: [""],
     photos: [] as string[],
   });
@@ -47,6 +48,11 @@ export default function ProfileSetupPage() {
       return;
     }
 
+    if (!formData.gender) {
+      setError("Gender is required");
+      return;
+    }
+
     if (validInterests.length === 0) {
       setError("At least one interest is required");
       return;
@@ -62,13 +68,14 @@ export default function ProfileSetupPage() {
     try {
       const response = await apiClient.patch("/api/auth/profile-setup", {
         bio: formData.bio,
+        gender: formData.gender,
         interests: validInterests,
         photos: formData.photos,
       });
 
-      // Update user in context
-      if (token && user) {
-        login(token, { ...user, ...response.data.user });
+      // Update user in context with the full response data
+      if (token) {
+        login(token, response.data.user);
       }
 
       navigate("/onboarding/preferences");
@@ -117,6 +124,50 @@ export default function ProfileSetupPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Gender */}
+            <div>
+              <label className="block text-sm font-medium text-[#4A4A4A] dark:text-dark-text-secondary mb-3">
+                Gender <span className="text-red-500">*</span>
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, gender: "male" })}
+                  className={`py-3 px-4 rounded-lg border-2 transition-all ${
+                    formData.gender === "male"
+                      ? "border-primary dark:border-primary-500 bg-primary/10 dark:bg-primary-500/20 text-primary dark:text-primary-500 font-semibold"
+                      : "border-primary-200 dark:border-dark-border text-[#4A4A4A] dark:text-dark-text-secondary hover:border-primary dark:hover:border-primary-500"
+                  }`}
+                >
+                  Male
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, gender: "female" })}
+                  className={`py-3 px-4 rounded-lg border-2 transition-all ${
+                    formData.gender === "female"
+                      ? "border-primary dark:border-primary-500 bg-primary/10 dark:bg-primary-500/20 text-primary dark:text-primary-500 font-semibold"
+                      : "border-primary-200 dark:border-dark-border text-[#4A4A4A] dark:text-dark-text-secondary hover:border-primary dark:hover:border-primary-500"
+                  }`}
+                >
+                  Female
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormData({ ...formData, gender: "transgender" })
+                  }
+                  className={`py-3 px-4 rounded-lg border-2 transition-all ${
+                    formData.gender === "transgender"
+                      ? "border-primary dark:border-primary-500 bg-primary/10 dark:bg-primary-500/20 text-primary dark:text-primary-500 font-semibold"
+                      : "border-primary-200 dark:border-dark-border text-[#4A4A4A] dark:text-dark-text-secondary hover:border-primary dark:hover:border-primary-500"
+                  }`}
+                >
+                  Transgender
+                </button>
+              </div>
+            </div>
+
             {/* Bio */}
             <div>
               <label className="block text-sm font-medium text-[#4A4A4A] dark:text-dark-text-secondary mb-2">
