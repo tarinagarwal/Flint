@@ -8,11 +8,23 @@ interface User {
   name: string;
   username: string;
   email: string;
+  bio?: string;
+  interests?: string[];
+  photos?: string[];
   isAdmin: boolean;
   isOnboarded: boolean;
   college: {
     id: string;
     name: string;
+  };
+  preferences?: {
+    lookingFor: string;
+    ageRange: {
+      min: number;
+      max: number;
+    };
+    distance: number;
+    genderPreference: string;
   };
 }
 
@@ -40,7 +52,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(JSON.parse(savedUser));
       // set Authorization header for both default axios and the apiClient instance
       axios.defaults.headers.common["Authorization"] = `Bearer ${savedToken}`;
-      apiClient.defaults.headers.common["Authorization"] = `Bearer ${savedToken}`;
+      apiClient.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${savedToken}`;
     }
     setIsLoading(false);
   }, []);

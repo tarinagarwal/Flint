@@ -121,6 +121,13 @@ export const authService = {
       expiresIn: "7d",
     });
 
+    // Map backend gender preference to frontend
+    const genderPreferenceMap: { [key: string]: string } = {
+      all: "everyone",
+      male: "male",
+      female: "female",
+    };
+
     return {
       token,
       user: {
@@ -128,9 +135,25 @@ export const authService = {
         name: user.name,
         username: user.username,
         email: user.email,
+        bio: user.bio,
+        interests: user.interests,
+        photos: user.photos,
         isAdmin: Boolean(user.isAdmin),
         isOnboarded: Boolean(user.isOnboarded),
         college: user.college,
+        preferences: user.isOnboarded
+          ? {
+              lookingFor: "friendship",
+              ageRange: {
+                min: user.preferredAgeMin || 18,
+                max: user.preferredAgeMax || 30,
+              },
+              distance: user.preferredDistance || 50,
+              genderPreference:
+                genderPreferenceMap[user.preferredGender || "all"] ||
+                "everyone",
+            }
+          : null,
       },
     };
   },
@@ -180,6 +203,9 @@ export const authService = {
         name: user.name,
         username: user.username,
         email: user.email,
+        bio: user.bio,
+        interests: user.interests,
+        photos: user.photos,
         isAdmin: Boolean(user.isAdmin),
         isOnboarded: Boolean(user.isOnboarded),
         college: user.college,
@@ -196,7 +222,12 @@ export const authService = {
       preferredGender: string;
     }
   ) {
-    const { preferredAgeMin, preferredAgeMax, preferredDistance, preferredGender } = data;
+    const {
+      preferredAgeMin,
+      preferredAgeMax,
+      preferredDistance,
+      preferredGender,
+    } = data;
 
     if (preferredAgeMin > preferredAgeMax) {
       throw new Error("Minimum age cannot be greater than maximum age");
@@ -229,15 +260,155 @@ export const authService = {
       },
     });
 
+    // Map backend gender preference to frontend
+    const genderPreferenceMap: { [key: string]: string } = {
+      all: "everyone",
+      male: "male",
+      female: "female",
+    };
+
     return {
       user: {
         id: user.id,
         name: user.name,
         username: user.username,
         email: user.email,
+        bio: user.bio,
+        interests: user.interests,
+        photos: user.photos,
         isAdmin: Boolean(user.isAdmin),
         isOnboarded: Boolean(user.isOnboarded),
         college: user.college,
+        preferences: {
+          lookingFor: "friendship",
+          ageRange: {
+            min: user.preferredAgeMin,
+            max: user.preferredAgeMax,
+          },
+          distance: user.preferredDistance,
+          genderPreference:
+            genderPreferenceMap[user.preferredGender] || "everyone",
+        },
+      },
+    };
+  },
+
+  async updateProfile(
+    userId: string,
+    data: {
+      name: string;
+      username: string;
+      bio: string;
+      interests: string[];
+      photos: string[];
+      preferences: {
+        lookingFor: string;
+        ageRange: { min: number; max: number };
+        distance: number;
+        genderPreference: string;
+      };
+    }
+  ) {
+    const { name, username, bio, interests, photos, preferences } = data;
+
+    // Validate inputs
+    if (!name || name.trim().length === 0) {
+      throw new Error("Name is required");
+    }
+
+    if (!username || username.trim().length === 0) {
+      throw new Error("Username is required");
+    }
+
+    // Check if username is taken by another user
+    const existingUsername = await prisma.user.findFirst({
+      where: {
+        username: {
+          equals: username.toLowerCase(),
+          mode: "insensitive",
+        },
+        NOT: {
+          id: userId,
+        },
+      },
+    });
+
+    if (existingUsername) {
+      throw new Error("Username already taken");
+    }
+
+    if (!bio || bio.trim().length === 0) {
+      throw new Error("Bio is required");
+    }
+
+    if (!interests || interests.length === 0) {
+      throw new Error("At least one interest is required");
+    }
+
+    if (!photos || photos.length === 0) {
+      throw new Error("At least one photo is required");
+    }
+
+    if (preferences.ageRange.min > preferences.ageRange.max) {
+      throw new Error("Minimum age cannot be greater than maximum age");
+    }
+
+    if (preferences.ageRange.min < 18 || preferences.ageRange.max > 100) {
+      throw new Error("Age must be between 18 and 100");
+    }
+
+    // Map frontend preferences to backend schema
+    const genderMap: { [key: string]: string } = {
+      everyone: "all",
+      male: "male",
+      female: "female",
+      "non-binary": "all",
+    };
+
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: name.trim(),
+        username: username.toLowerCase().trim(),
+        bio: bio.trim(),
+        interests,
+        photos,
+        preferredAgeMin: preferences.ageRange.min,
+        preferredAgeMax: preferences.ageRange.max,
+        preferredDistance: preferences.distance,
+        preferredGender: genderMap[preferences.genderPreference] || "all",
+      },
+      include: {
+        college: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    return {
+      user: {
+        id: user.id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        bio: user.bio,
+        interests: user.interests,
+        photos: user.photos,
+        isAdmin: Boolean(user.isAdmin),
+        isOnboarded: Boolean(user.isOnboarded),
+        college: user.college,
+        preferences: {
+          lookingFor: preferences.lookingFor,
+          ageRange: {
+            min: user.preferredAgeMin,
+            max: user.preferredAgeMax,
+          },
+          distance: user.preferredDistance,
+          genderPreference: preferences.genderPreference,
+        },
       },
     };
   },

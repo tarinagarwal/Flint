@@ -64,9 +64,19 @@ export const authController = {
   async updatePreferences(req: Request, res: Response) {
     try {
       const userId = (req as any).userId;
-      const { preferredAgeMin, preferredAgeMax, preferredDistance, preferredGender } = req.body;
+      const {
+        preferredAgeMin,
+        preferredAgeMax,
+        preferredDistance,
+        preferredGender,
+      } = req.body;
 
-      if (!preferredAgeMin || !preferredAgeMax || !preferredDistance || !preferredGender) {
+      if (
+        !preferredAgeMin ||
+        !preferredAgeMax ||
+        !preferredDistance ||
+        !preferredGender
+      ) {
         return res.status(400).json({ message: "All fields are required" });
       }
 
@@ -75,6 +85,30 @@ export const authController = {
         preferredAgeMax,
         preferredDistance,
         preferredGender,
+      });
+
+      res.status(200).json(result);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+
+  async updateProfile(req: Request, res: Response) {
+    try {
+      const userId = (req as any).userId;
+      const { name, username, bio, interests, photos, preferences } = req.body;
+
+      if (!name || !username || !bio || !interests || !photos || !preferences) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+
+      const result = await authService.updateProfile(userId, {
+        name,
+        username,
+        bio,
+        interests,
+        photos,
+        preferences,
       });
 
       res.status(200).json(result);

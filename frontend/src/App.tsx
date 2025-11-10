@@ -6,11 +6,13 @@ import SignupPage from "./features/auth/SignupPage";
 import LoginPage from "./features/auth/LoginPage";
 import RequestCollegePage from "./features/college/RequestCollegePage";
 import DashboardPage from "./features/dashboard/DashboardPage";
+import EditProfilePage from "./features/dashboard/EditProfilePage";
 import ProfileSetupPage from "./features/onboarding/ProfileSetupPage";
 import PreferencesPage from "./features/onboarding/PreferencesPage";
 import { AuthProvider } from "./lib/AuthContext";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 import OnboardingRoute from "./components/layout/OnboardingRoute";
+import GuestRoute from "./components/layout/GuestRoute";
 
 function App() {
   return (
@@ -19,9 +21,30 @@ function App() {
         <BrowserRouter>
           <div className="min-h-screen bg-white dark:bg-dark-bg text-[#1A1A1A] dark:text-dark-text transition-colors duration-300">
             <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/signup" element={<SignupPage />} />
-              <Route path="/login" element={<LoginPage />} />
+              <Route
+                path="/"
+                element={
+                  <GuestRoute>
+                    <LandingPage />
+                  </GuestRoute>
+                }
+              />
+              <Route
+                path="/signup"
+                element={
+                  <GuestRoute>
+                    <SignupPage />
+                  </GuestRoute>
+                }
+              />
+              <Route
+                path="/login"
+                element={
+                  <GuestRoute>
+                    <LoginPage />
+                  </GuestRoute>
+                }
+              />
               <Route path="/request-college" element={<RequestCollegePage />} />
               <Route
                 path="/onboarding/profile-setup"
@@ -44,6 +67,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <DashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/edit-profile"
+                element={
+                  <ProtectedRoute>
+                    <EditProfilePage />
                   </ProtectedRoute>
                 }
               />
