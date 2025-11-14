@@ -11,23 +11,20 @@ export const discoverService = {
     // Get all user IDs that current user has already swiped on
     const swipedUserIds = await prisma.swipe.findMany({
       where: { swiperId: userId },
-      select: { swipedId: true }
+      select: { swipedId: true },
     });
 
-    const swipedIds = swipedUserIds.map(s => s.swipedId);
+    const swipedIds = swipedUserIds.map((s) => s.swipedId);
 
     // Get all user IDs that current user is matched with
     const matches = await prisma.match.findMany({
       where: {
-        OR: [
-          { user1Id: userId },
-          { user2Id: userId }
-        ]
+        OR: [{ user1Id: userId }, { user2Id: userId }],
       },
-      select: { user1Id: true, user2Id: true }
+      select: { user1Id: true, user2Id: true },
     });
 
-    const matchedIds = matches.map(m => 
+    const matchedIds = matches.map((m) =>
       m.user1Id === userId ? m.user2Id : m.user1Id
     );
 
@@ -41,18 +38,37 @@ export const discoverService = {
         collegeId: true,
         preferredGender: true,
         preferredAgeMin: true,
-        preferredAgeMax: true
-      }
+        preferredAgeMax: true,
+        email: true,
+      },
     });
 
     if (!currentUser) {
       throw new Error("User not found");
     }
 
+    console.log("🔍 Discover Debug:");
+    console.log("Current User ID:", userId);
+    console.log("Current User College ID:", currentUser.collegeId);
+    console.log("Current User Email:", currentUser.email);
+    console.log("Excluded IDs:", excludeIds);
+    console.log("Preferred Gender:", currentUser.preferredGender);
+
     // Build gender filter
-    const genderFilter = currentUser.preferredGender === "all" 
-      ? {} 
-      : { gender: currentUser.preferredGender };
+    const genderFilter =
+      currentUser.preferredGender === "all"
+        ? {}
+        : { gender: currentUser.preferredGender };
+
+    // First, let's check total users in the same college
+    const totalCollegeUsers = await prisma.user.count({
+      where: {
+        collegeId: currentUser.collegeId,
+        isOnboarded: true,
+      },
+    });
+
+    console.log("Total onboarded users in college:", totalCollegeUsers);
 
     // Fetch users
     const users = await prisma.user.findMany({
@@ -60,7 +76,7 @@ export const discoverService = {
         id: { notIn: excludeIds },
         collegeId: currentUser.collegeId, // Same college only
         isOnboarded: true,
-        ...genderFilter
+        ...genderFilter,
       },
       select: {
         id: true,
@@ -73,17 +89,20 @@ export const discoverService = {
         college: {
           select: {
             name: true,
-            location: true
-          }
+            location: true,
+          },
         },
-        createdAt: true
+        createdAt: true,
       },
       take: limit,
       orderBy: {
-        createdAt: "desc" // Newest users first
-      }
+        createdAt: "desc", // Newest users first
+      },
     });
 
+    console.log("Users found:", users.length);
+    console.log("---");
+
     return users;
-  }
+  },
 };

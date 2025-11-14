@@ -32,7 +32,7 @@ export default function MatchesPage() {
   const fetchMatches = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get("/swipes/matches");
+      const response = await apiClient.get("/api/swipes/matches");
       setMatches(response.data.matches);
     } catch (error) {
       console.error("Failed to fetch matches:", error);
@@ -62,14 +62,12 @@ export default function MatchesPage() {
               <ArrowLeft className="w-5 h-5" />
               <span className="font-medium">Back to Discover</span>
             </button>
-
             <div className="flex items-center gap-2">
               <Heart className="w-6 h-6 text-primary" fill="currentColor" />
               <h1 className="text-2xl font-bold text-[#1A1A1A] dark:text-dark-text">
                 Your Matches
               </h1>
             </div>
-
             <div className="w-32" /> {/* Spacer for centering */}
           </div>
         </div>
@@ -121,7 +119,7 @@ export default function MatchesPage() {
                   <h3 className="text-xl font-bold text-[#1A1A1A] dark:text-dark-text mb-1">
                     {match.user.name}
                   </h3>
-                  
+
                   <p className="text-sm text-[#4A4A4A] dark:text-dark-text-secondary mb-3">
                     {match.user.college.name}
                   </p>
@@ -134,15 +132,17 @@ export default function MatchesPage() {
 
                   {match.user.interests.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {match.user.interests.slice(0, 3).map((interest, index) => (
-                        <span
-                          key={index}
-                          className="px-2 py-1 bg-primary-50 dark:bg-primary-900/20 text-primary dark:text-primary-400 rounded-full text-xs font-medium flex items-center gap-1"
-                        >
-                          <Sparkles className="w-3 h-3" />
-                          {interest}
-                        </span>
-                      ))}
+                      {match.user.interests
+                        .slice(0, 3)
+                        .map((interest, index) => (
+                          <span
+                            key={index}
+                            className="px-2 py-1 bg-primary-50 dark:bg-primary-900/20 text-primary dark:text-primary-400 rounded-full text-xs font-medium flex items-center gap-1"
+                          >
+                            <Sparkles className="w-3 h-3" />
+                            {interest}
+                          </span>
+                        ))}
                       {match.user.interests.length > 3 && (
                         <span className="px-2 py-1 bg-primary-50 dark:bg-primary-900/20 text-primary dark:text-primary-400 rounded-full text-xs font-medium">
                           +{match.user.interests.length - 3}

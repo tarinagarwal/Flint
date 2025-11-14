@@ -60,7 +60,7 @@ export default function DiscoverPage() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get("/discover/feed");
+      const response = await apiClient.get("/api/discover/feed");
       setUsers(response.data.users);
     } catch (error) {
       console.error("Failed to fetch users:", error);
@@ -71,11 +71,16 @@ export default function DiscoverPage() {
 
   // Handle swipe
   const handleSwipe = async (direction: "LEFT" | "RIGHT" | "UP") => {
-    if (!currentUser) return;
+    if (!currentUser || loading) return;
 
     try {
-      const response = await apiClient.post("/swipes", {
-        swipedUserId: currentUser.id,
+      // Immediately move to next card to prevent duplicate swipes
+      const userToSwipe = currentUser;
+      setCurrentIndex((prev) => prev + 1);
+      api.start({ x: 0, rotate: 0 });
+
+      const response = await apiClient.post("/api/swipes", {
+        swipedUserId: userToSwipe.id,
         type: direction,
       });
 
@@ -85,18 +90,19 @@ export default function DiscoverPage() {
         setShowMatchModal(true);
       }
 
-      // Move to next card
-      setCurrentIndex((prev) => prev + 1);
-      
-      // Reset animation
-      api.start({ x: 0, rotate: 0 });
-
       // Fetch more users if running low
       if (currentIndex >= users.length - 3) {
         fetchUsers();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to swipe:", error);
+      // Don't show error for "already swiped" - user already moved to next card
+      if (
+        error.response?.data?.message &&
+        !error.response.data.message.includes("Already swiped")
+      ) {
+        console.error("Swipe error:", error.response.data.message);
+      }
     }
   };
 
@@ -204,10 +210,7 @@ export default function DiscoverPage() {
                 }}
                 className="absolute inset-0"
               >
-                <SwipeCard
-                  user={currentUser}
-                  onSwipe={handleSwipe}
-                />
+                <SwipeCard user={currentUser} onSwipe={handleSwipe} />
               </animated.div>
 
               {/* Swipe hints */}
